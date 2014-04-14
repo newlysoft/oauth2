@@ -358,6 +358,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		if len(b.Id) == 0 {
 			b.Id = b.Uid
 		}
+		println(b.Id, b.Uid)
 		// The JSON parser treats the unitless ExpiresIn like 'ns' instead of 's' as above,
 		// so compensate here.
 		b.ExpiresIn *= time.Second
