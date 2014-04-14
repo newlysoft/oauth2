@@ -336,6 +336,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 	}
 
 	content, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	println(content)
 	switch content {
 	case "application/x-www-form-urlencoded", "text/plain":
 		body, err := ioutil.ReadAll(r.Body)
@@ -351,14 +352,15 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		b.Refresh = vals.Get("refresh_token")
 		b.ExpiresIn, _ = time.ParseDuration(vals.Get("expires_in") + "s")
 		b.Id = vals.Get("id_token")
+		println(vals.Get("uid"))
 	default:
 		if err = json.NewDecoder(r.Body).Decode(&b); err != nil {
 			return err
 		}
+		println(b.Id, b.Uid)
 		if len(b.Id) == 0 {
 			b.Id = b.Uid
 		}
-		println(b.Id, b.Uid)
 		// The JSON parser treats the unitless ExpiresIn like 'ns' instead of 's' as above,
 		// so compensate here.
 		b.ExpiresIn *= time.Second
