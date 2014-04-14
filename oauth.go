@@ -44,6 +44,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -336,9 +337,8 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 	}
 
 	content, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	println(content)
-	switch content {
-	case "application/x-www-form-urlencoded", "text/plain":
+	if content == "application/x-www-form-urlencoded" ||
+		(content == "text/plain" && !strings.Contains(t.TokenURL, "api.weibo.com")) {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			return err
@@ -352,8 +352,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		b.Refresh = vals.Get("refresh_token")
 		b.ExpiresIn, _ = time.ParseDuration(vals.Get("expires_in") + "s")
 		b.Id = vals.Get("id_token")
-		println(string(body))
-	default:
+	} else {
 		if err = json.NewDecoder(r.Body).Decode(&b); err != nil {
 			return err
 		}
@@ -364,6 +363,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		// so compensate here.
 		b.ExpiresIn *= time.Second
 	}
+
 	tok.AccessToken = b.Access
 	// Don't overwrite `RefreshToken` with an empty value
 	if len(b.Refresh) > 0 {
