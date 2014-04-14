@@ -352,12 +352,11 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		b.Refresh = vals.Get("refresh_token")
 		b.ExpiresIn, _ = time.ParseDuration(vals.Get("expires_in") + "s")
 		b.Id = vals.Get("id_token")
-		println(vals.Get("uid"))
+		println(string(body))
 	default:
 		if err = json.NewDecoder(r.Body).Decode(&b); err != nil {
 			return err
 		}
-		println(b.Id, b.Uid)
 		if len(b.Id) == 0 {
 			b.Id = b.Uid
 		}
