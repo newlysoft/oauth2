@@ -39,6 +39,7 @@ package oauth2
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -333,7 +334,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 		Refresh   string        `json:"refresh_token"`
 		ExpiresIn time.Duration `json:"expires_in"`
 		Id        string        `json:"id_token"`
-		Uid       string        `json:"uid"`
+		Uid       int64         `json:"uid"`
 	}
 
 	content, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
@@ -357,7 +358,7 @@ func (t *Transport) updateToken(tok *Token, v url.Values) error {
 			return err
 		}
 		if len(b.Id) == 0 {
-			b.Id = b.Uid
+			b.Id = fmt.Sprintf("%d", b.Uid)
 		}
 		// The JSON parser treats the unitless ExpiresIn like 'ns' instead of 's' as above,
 		// so compensate here.
